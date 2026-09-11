@@ -1,0 +1,64 @@
+name: Build RandomChar IME
+
+on:
+  push:
+    branches: [ main, master ]
+  pull_request:
+    branches: [ main, master ]
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: windows-latest
+
+    steps:
+    - name: Checkout repository
+      uses: actions/checkout@v4
+
+    # ---------------------------------------------------------------
+    #  Set up MSBuild (Visual Studio Build Tools) explicitly so we
+    #  do not depend on whatever happens to be on the runner PATH.
+    # ---------------------------------------------------------------
+    - name: Set up MSBuild
+      uses: microsoft/setup-msbuild@v2
+
+    # ---------------------------------------------------------------
+    #  Install WiX Toolset v3 via Chocolatey.
+    #  We deliberately install it ourselves instead of relying on a
+    #  possibly-preinstalled copy whose location may change.
+    # ---------------------------------------------------------------
+    - name: Install WiX Toolset v3
+      run: choco install wixtoolset -y --no-progress
+
+    # ---------------------------------------------------------------
+    #  Build the EXE with MSBuild (Release | Win32).
+    #  Output goes to bin\Win32\Release\RandomCharIME.exe
+    # ---------------------------------------------------------------
+    - name: Build EXE
+      run: msbuild RandomCharIME.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
+
+    # ---------------------------------------------------------------
+    #  Build the MSI installer with WiX (candle + light).
+    # ---------------------------------------------------------------
+    - name: Build MSI installer
+      shell: cmd
+      run: |
+        if not exist build mkdir build
+        set "WIX_BIN=C:\Program Files (x86)\WiX Toolset v3.11\bin"
+        "%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\Win32\Release installer\Product.wxs -out build\
+        "%WIX_BIN%\light.exe"  -nologo -out build\RandomCharIME.msi build\Product.wixobj
+
+    # ---------------------------------------------------------------
+    #  Upload artifacts
+    # ---------------------------------------------------------------
+    - name: Upload EXE
+      uses: actions/upload-artifact@v4
+      with:
+        name: RandomCharIME-exe
+        path: bin/Win32/Release/RandomCharIME.exe
+
+    - name: Upload MSI
+      uses: actions/upload-artifact@v4
+      with:
+        name: RandomCharIME-msi
+        path: build/RandomCharIME.msi

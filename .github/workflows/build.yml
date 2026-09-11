@@ -23,13 +23,13 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     # ---------------------------------------------------------------
-    #  Set up WiX Toolset v3.
-    #  This action downloads WiX, extracts it, and adds its bin
-    #  directory to PATH — so candle.exe and light.exe are directly
-    #  callable in subsequent steps without hardcoding a path.
+    #  Install WiX Toolset v3 via Chocolatey.
+    #  The exact install path may vary between runner images, so we
+    #  do NOT hardcode it — the MSI build step below locates
+    #  candle.exe / light.exe dynamically.
     # ---------------------------------------------------------------
-    - name: Set up WiX Toolset
-      uses: fbaiteur/setup-wix@v1
+    - name: Install WiX Toolset v3
+      run: choco install wixtoolset -y --no-progress
 
     # ---------------------------------------------------------------
     #  Build the EXE with MSBuild (Release | x64).
@@ -40,14 +40,52 @@ jobs:
 
     # ---------------------------------------------------------------
     #  Build the MSI installer with WiX (candle + light).
-    #  WiX bin is on PATH thanks to the setup-wix action above.
+    #  Locates WiX binaries at runtime: checks PATH first (chocolatey
+    #  shims), then common install directories, then a recursive search.
     # ---------------------------------------------------------------
     - name: Build MSI installer
-      shell: cmd
+      shell: powershell
       run: |
-        if not exist build mkdir build
-        candle.exe -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
-        light.exe -nologo -out build\RandomCharIME.msi build\Product.wixobj
+        # --- Locate candle.exe ---
+        $candle = $null
+
+        # 1) Try PATH (chocolatey shims live in C:\ProgramData\chocolatey\bin)
+        $cmd = Get-Command candle.exe -ErrorAction SilentlyContinue
+        if ($cmd) { $candle = $cmd.Source }
+
+        # 2) Try well-known install paths
+        if (-not $candle) {
+          $candidates = @(
+            "C:\Program Files (x86)\WiX Toolset v3.11\bin\candle.exe",
+            "C:\Program Files (x86)\WiX Toolset v3.14\bin\candle.exe",
+            "C:\Program Files\WiX Toolset v3.11\bin\candle.exe",
+            "C:\Program Files\WiX Toolset v3.14\bin\candle.exe"
+          )
+          $candle = $candidates | Where-Object { Test-Path $_ } | Select-Object -First 1
+        }
+
+        # 3) Fallback: recursive search under Program Files (x86)
+        if (-not $candle) {
+          $candle = Get-ChildItem -Path "C:\Program Files (x86)" -Filter "candle.exe" -Recurse -ErrorAction SilentlyContinue |
+                    Select-Object -First 1 -ExpandProperty FullName
+        }
+
+        if (-not $candle) { throw "candle.exe not found — WiX installation may have failed." }
+
+        $wixBin = Split-Path $candle -Parent
+        $light  = Join-Path $wixBin "light.exe"
+        Write-Host "WiX bin directory: $wixBin"
+
+        # --- Build ---
+        New-Item -ItemType Directory -Force -Path build | Out-Null
+
+        & $candle -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
+        if ($LASTEXITCODE -ne 0) { throw "candle failed with exit code $LASTEXITCODE" }
+
+        & $light -nologo -out build\RandomCharIME.msi build\Product.wixobj
+        if ($LASTEXITCODE -ne 0) { throw "light failed with exit code $LASTEXITCODE" }
+
+        Write-Host "MSI built successfully: build\RandomCharIME.msi"
 
     # ---------------------------------------------------------------
     #  Upload artifacts

@@ -89,8 +89,8 @@ Pushing to `main` or `master` automatically triggers the workflow defined in
 `.github/workflows/build.yml`, which:
 
 1. Sets up MSBuild via `microsoft/setup-msbuild`.
-2. Installs WiX Toolset v3 via Chocolatey (does not rely on a pre-installed
-   copy).
+2. Sets up WiX Toolset v3 via `fbaiteur/setup-wix` (downloads and adds to
+   PATH, no reliance on a pre-installed copy or hardcoded path).
 3. Builds the EXE with MSBuild (Release | x64).
 4. Compiles the WiX source into an MSI installer.
 5. Uploads both the EXE and MSI as build artifacts.

@@ -23,12 +23,13 @@ jobs:
       uses: microsoft/setup-msbuild@v2
 
     # ---------------------------------------------------------------
-    #  Install WiX Toolset v3 via Chocolatey.
-    #  We deliberately install it ourselves instead of relying on a
-    #  possibly-preinstalled copy whose location may change.
+    #  Set up WiX Toolset v3.
+    #  This action downloads WiX, extracts it, and adds its bin
+    #  directory to PATH — so candle.exe and light.exe are directly
+    #  callable in subsequent steps without hardcoding a path.
     # ---------------------------------------------------------------
-    - name: Install WiX Toolset v3
-      run: choco install wixtoolset -y --no-progress
+    - name: Set up WiX Toolset
+      uses: fbaiteur/setup-wix@v1
 
     # ---------------------------------------------------------------
     #  Build the EXE with MSBuild (Release | x64).
@@ -39,14 +40,14 @@ jobs:
 
     # ---------------------------------------------------------------
     #  Build the MSI installer with WiX (candle + light).
+    #  WiX bin is on PATH thanks to the setup-wix action above.
     # ---------------------------------------------------------------
     - name: Build MSI installer
       shell: cmd
       run: |
         if not exist build mkdir build
-        set "WIX_BIN=C:\Program Files (x86)\WiX Toolset v3.11\bin"
-        "%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
-        "%WIX_BIN%\light.exe"  -nologo -out build\RandomCharIME.msi build\Product.wixobj
+        candle.exe -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
+        light.exe -nologo -out build\RandomCharIME.msi build\Product.wixobj
 
     # ---------------------------------------------------------------
     #  Upload artifacts

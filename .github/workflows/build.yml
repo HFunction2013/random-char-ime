@@ -31,11 +31,11 @@ jobs:
       run: choco install wixtoolset -y --no-progress
 
     # ---------------------------------------------------------------
-    #  Build the EXE with MSBuild (Release | Win32).
-    #  Output goes to bin\Win32\Release\RandomCharIME.exe
+    #  Build the EXE with MSBuild (Release | x64).
+    #  Output goes to bin\x64\Release\RandomCharIME.exe
     # ---------------------------------------------------------------
     - name: Build EXE
-      run: msbuild RandomCharIME.sln /p:Configuration=Release /p:Platform=Win32 /m /v:minimal
+      run: msbuild RandomCharIME.sln /p:Configuration=Release /p:Platform=x64 /m /v:minimal
 
     # ---------------------------------------------------------------
     #  Build the MSI installer with WiX (candle + light).
@@ -45,7 +45,7 @@ jobs:
       run: |
         if not exist build mkdir build
         set "WIX_BIN=C:\Program Files (x86)\WiX Toolset v3.11\bin"
-        "%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\Win32\Release installer\Product.wxs -out build\
+        "%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
         "%WIX_BIN%\light.exe"  -nologo -out build\RandomCharIME.msi build\Product.wixobj
 
     # ---------------------------------------------------------------
@@ -55,7 +55,7 @@ jobs:
       uses: actions/upload-artifact@v4
       with:
         name: RandomCharIME-exe
-        path: bin/Win32/Release/RandomCharIME.exe
+        path: bin/x64/Release/RandomCharIME.exe
 
     - name: Upload MSI
       uses: actions/upload-artifact@v4

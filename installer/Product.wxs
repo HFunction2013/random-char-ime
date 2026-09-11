@@ -18,8 +18,9 @@
     <Package InstallerVersion="200"
              Compressed="yes"
              InstallScope="perMachine"
+             Platform="x64"
              Manufacturer="RandomChar IME"
-             Description="RandomChar IME Installer" />
+             Description="RandomChar IME Installer (x64)" />
 
     <MajorUpgrade DowngradeErrorMessage="A newer version of RandomChar IME is already installed." />
     <MediaTemplate EmbedCab="yes" />
@@ -33,7 +34,7 @@
 
     <!-- ---- Directory layout ---- -->
     <Directory Id="TARGETDIR" Name="SourceDir">
-      <Directory Id="ProgramFilesFolder">
+      <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="RandomChar IME" />
       </Directory>
       <Directory Id="ProgramMenuFolder">
@@ -44,7 +45,7 @@
 
     <!-- ---- Main executable ---- -->
     <DirectoryRef Id="INSTALLFOLDER">
-      <Component Id="MainExecutable" Guid="*">
+      <Component Id="MainExecutable" Guid="*" Win64="yes">
         <File Id="RandomCharIME.exe"
               Source="$(var.BinDir)\RandomCharIME.exe"
               KeyPath="yes"
@@ -54,7 +55,7 @@
 
     <!-- ---- Start Menu shortcut ---- -->
     <DirectoryRef Id="ProgramMenuDir">
-      <Component Id="StartMenuShortcut" Guid="*">
+      <Component Id="StartMenuShortcut" Guid="*" Win64="yes">
         <Shortcut Id="StartMenuShortcut"
                   Name="RandomChar IME"
                   Description="Random character input method editor"
@@ -72,7 +73,7 @@
 
     <!-- ---- Desktop shortcut ---- -->
     <DirectoryRef Id="DesktopFolder">
-      <Component Id="DesktopShortcut" Guid="*">
+      <Component Id="DesktopShortcut" Guid="*" Win64="yes">
         <Shortcut Id="DesktopShortcut"
                   Name="RandomChar IME"
                   Description="Random character input method editor"

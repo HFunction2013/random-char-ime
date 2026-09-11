@@ -63,21 +63,21 @@ The application runs from the **system tray** with no visible window.
 
 ### Build the EXE
 
-Open `RandomCharIME.sln` in Visual Studio and build the **Release | Win32**
+Open `RandomCharIME.sln` in Visual Studio and build the **Release | x64**
 configuration, or run from a Developer Command Prompt:
 
 ```cmd
-msbuild RandomCharIME.sln /p:Configuration=Release /p:Platform=Win32 /m
+msbuild RandomCharIME.sln /p:Configuration=Release /p:Platform=x64 /m
 ```
 
-The executable is produced at `bin\Win32\Release\RandomCharIME.exe`.
+The executable is produced at `bin\x64\Release\RandomCharIME.exe`.
 
 ### Build the MSI
 
 ```cmd
 set "WIX_BIN=C:\Program Files (x86)\WiX Toolset v3.11\bin"
 if not exist build mkdir build
-"%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\Win32\Release installer\Product.wxs -out build\
+"%WIX_BIN%\candle.exe" -nologo -dBinDir=bin\x64\Release installer\Product.wxs -out build\
 "%WIX_BIN%\light.exe"  -nologo -out build\RandomCharIME.msi build\Product.wixobj
 ```
 
@@ -91,7 +91,7 @@ Pushing to `main` or `master` automatically triggers the workflow defined in
 1. Sets up MSBuild via `microsoft/setup-msbuild`.
 2. Installs WiX Toolset v3 via Chocolatey (does not rely on a pre-installed
    copy).
-3. Builds the EXE with MSBuild (Release | Win32).
+3. Builds the EXE with MSBuild (Release | x64).
 4. Compiles the WiX source into an MSI installer.
 5. Uploads both the EXE and MSI as build artifacts.
 
@@ -100,7 +100,7 @@ Pushing to `main` or `master` automatically triggers the workflow defined in
 ## Installation
 
 Run `RandomCharIME.msi` and follow the wizard. The application is installed to
-`C:\Program Files (x86)\RandomChar IME\` by default, with shortcuts added to
+`C:\Program Files\RandomChar IME\` by default, with shortcuts added to
 the Start Menu and Desktop.
 
 To uninstall, use **Settings > Apps > Installed apps** or the MSI's

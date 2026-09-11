@@ -97,10 +97,10 @@ static bool IsToggleOn(int vk)
 /*  Is this a printable-character key we should randomize?           */
 /* ------------------------------------------------------------------ */
 
-static bool IsCharKey(DWORD vk)
+static bool IsCharKey(int vk)
 {
-    if (vk >= VK_A && vk <= VK_Z)           return true;
-    if (vk >= VK_0 && vk <= VK_9)           return true;
+    if (vk >= 'A' && vk <= 'Z')           return true;
+    if (vk >= '0' && vk <= '9')           return true;
     if (vk >= VK_NUMPAD0 && vk <= VK_NUMPAD9) return true;
 
     switch (vk) {
@@ -136,7 +136,7 @@ static LRESULT CALLBACK KbdHook(int nCode, WPARAM wParam, LPARAM lParam)
             return CallNextHookEx(g_hHook, nCode, wParam, lParam);
 
         if (wParam == WM_KEYDOWN || wParam == WM_SYSKEYDOWN) {
-            DWORD vk = p->vkCode;
+            int vk = (int)p->vkCode;
 
             /* Pass through when Ctrl / Alt / Win is held so that
              * all system and application shortcuts work normally. */
@@ -149,12 +149,12 @@ static LRESULT CALLBACK KbdHook(int nCode, WPARAM wParam, LPARAM lParam)
 
             wchar_t ch = 0;
 
-            if (vk >= VK_A && vk <= VK_Z) {
+            if (vk >= 'A' && vk <= 'Z') {
                 /* Effective case = Shift XOR CapsLock */
                 bool upper = IsDown(VK_SHIFT) ^ IsToggleOn(VK_CAPITAL);
                 ch = upper ? RandUpper() : RandLower();
             }
-            else if (vk >= VK_0 && vk <= VK_9) {
+            else if (vk >= '0' && vk <= '9') {
                 /* Top-row digits: Shift turns them into symbols */
                 ch = IsDown(VK_SHIFT) ? RandSymbol() : RandDigit();
             }

@@ -25,7 +25,7 @@ jobs:
     # ---------------------------------------------------------------
     #  Install WiX Toolset v3 via Chocolatey.
     #  The exact install path may vary between runner images, so we
-    #  do NOT hardcode it — the MSI build step below locates
+    #  do NOT hardcode it - the MSI build step below locates
     #  candle.exe / light.exe dynamically.
     # ---------------------------------------------------------------
     - name: Install WiX Toolset v3
@@ -70,7 +70,7 @@ jobs:
                     Select-Object -First 1 -ExpandProperty FullName
         }
 
-        if (-not $candle) { throw "candle.exe not found — WiX installation may have failed." }
+        if (-not $candle) { throw "candle.exe not found - WiX installation may have failed." }
 
         $wixBin = Split-Path $candle -Parent
         $light  = Join-Path $wixBin "light.exe"

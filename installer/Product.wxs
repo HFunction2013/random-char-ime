@@ -25,14 +25,14 @@
     <MajorUpgrade DowngradeErrorMessage="A newer version of RandomChar IME is already installed." />
     <MediaTemplate EmbedCab="yes" />
 
-    <!-- ---- Features ---- -->
+    <!--  Features  -->
     <Feature Id="ProductFeature" Title="RandomChar IME" Level="1">
       <ComponentRef Id="MainExecutable" />
       <ComponentRef Id="StartMenuShortcut" />
       <ComponentRef Id="DesktopShortcut" />
     </Feature>
 
-    <!-- ---- Directory layout ---- -->
+    <!--  Directory layout  -->
     <Directory Id="TARGETDIR" Name="SourceDir">
       <Directory Id="ProgramFiles64Folder">
         <Directory Id="INSTALLFOLDER" Name="RandomChar IME" />
@@ -43,7 +43,7 @@
       <Directory Id="DesktopFolder" />
     </Directory>
 
-    <!-- ---- Main executable ---- -->
+    <!--  Main executable  -->
     <DirectoryRef Id="INSTALLFOLDER">
       <Component Id="MainExecutable" Guid="*" Win64="yes">
         <File Id="RandomCharIME.exe"
@@ -53,7 +53,7 @@
       </Component>
     </DirectoryRef>
 
-    <!-- ---- Start Menu shortcut ---- -->
+    <!--  Start Menu shortcut  -->
     <DirectoryRef Id="ProgramMenuDir">
       <Component Id="StartMenuShortcut" Guid="*" Win64="yes">
         <Shortcut Id="StartMenuShortcut"
@@ -71,7 +71,7 @@
       </Component>
     </DirectoryRef>
 
-    <!-- ---- Desktop shortcut ---- -->
+    <!--  Desktop shortcut  -->
     <DirectoryRef Id="DesktopFolder">
       <Component Id="DesktopShortcut" Guid="*" Win64="yes">
         <Shortcut Id="DesktopShortcut"
